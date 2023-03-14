@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 def _predict_(X):#[samples,4]
     coef = np.array([9.07331219e-03,4.83963960e+00,-1.58571516e+00,-1.64596653e-03,-3.46679025e-01,1.42157963e+00])#max,mean,median,std
