@@ -15,6 +15,12 @@ work_dir='/Users/jiale/Desktop/fengyun_XEUVI/2022-04/21/'
 figs_dir=work_dir+'figures3/'
 aia_dir=work_dir+'aia_data/'
 
+if not os.path.exists(aia_dir):
+    os.mkdir(aia_dir)
+    
+if not os.path.exists(figs_dir):
+    os.mkdir(figs_dir)
+
 filelist=sorted(glob.glob(work_dir+'*_V0.HDF'))
 radiusSize, angleSize = 1024, 1800
 IM=np.zeros((1,1024,1024))
