@@ -1137,7 +1137,7 @@ def firstalign(im):
 
         tmp_0 = immove2(imorg, outpara_0[0], outpara_0[1])  # 移动图像至1023.5
         im0.append(tmp_0)
-        result.append([outpara_0[0], outpara_0[1]])
+        result.append([outpara_0[0], outpara_0[1], rsun_pix0])
         
         arr = disk(M, N, 900)  # mask
 
