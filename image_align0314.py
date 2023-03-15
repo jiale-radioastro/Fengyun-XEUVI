@@ -12,7 +12,7 @@ from func_by_zjl import *
 
 
 work_dir='/Users/jiale/Desktop/fengyun_XEUVI/2022-04/21/' 
-figs_dir=work_dir+'figures3/'
+figs_dir=work_dir+'figures/'
 aia_dir=work_dir+'aia_data/'
 
 if not os.path.exists(aia_dir):
@@ -51,10 +51,14 @@ for i in tqdm(range(im0.shape[0])):
     if i==0 or (Time(timelist[i])-aia_reference_time).value*24>1:
         aia_map=give_aiamap(timelist[i],aia_dir=aia_dir)
         aia_reference_time=aia_map.date
-        aia_map=reduce_aiamap(aia_map,im1[i])
+
+        _,re_a=firstalign(np.array([to1024(aia_map.data,4)]))
+        scale=4*re_a[0][2]/re[i][2]
+        
+        aia_map=reduce_aiamap(aia_map,scale=scale)
     
-    #aia_map_drot=drot_map(aia_map,timelist[i])
-    aia_map_drot=aia_map
+    aia_map_drot=drot_map(aia_map,timelist[i])
+    #aia_map_drot=aia_map
     aia_img=removenan(aia_map_drot.data.T)
     imp0, Ptsetting = pT.convertToPolarImage(aia_img, center, radiusSize=radiusSize, angleSize=angleSize)
     imp0=np.log(np.maximum(imp0,0)+1)
