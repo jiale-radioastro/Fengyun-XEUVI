@@ -7,6 +7,7 @@ from scipy.interpolate import RectBivariateSpline
 from astropy.coordinates import SkyCoord
 from astropy.wcs import WCS
 from sunpy.coordinates import Helioprojective, propagate_with_solar_surface
+from astropy import units as u
 
 def read_timelist(msec,day):
     msec1=msec[:,0]*0.1
