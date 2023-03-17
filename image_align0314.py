@@ -32,7 +32,7 @@ for file in tqdm(filelist):
     im=np.array(f['Data/Radiance'][:])
     msec=f['/Time/Msec_Count'][:]
     day=f['/Time/Day_Count'][:]
-    if im.size != 0
+    if im.size != 0:
         IM=np.vstack((IM,im[:,24:-24, 4:-4])) 
         timelist.extend(read_timelist(msec,day))
 
