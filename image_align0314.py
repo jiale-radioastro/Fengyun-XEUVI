@@ -9,10 +9,12 @@ from IPython import display
 from func_by_jkf import *
 from func_by_hzy import *
 from func_by_zjl import *
+# import reproject
 
 
-work_dir='/Users/jiale/Desktop/fengyun_XEUVI/2022-04/21/' 
-figs_dir=work_dir+'figures/'
+# work_dir='/Users/gyh/Desktop/research/X-EUVI数据质量提升/弯曲网格事件/0421_orig/'
+work_dir='/Users/gyh/Desktop/research/X-EUVI数据质量提升/ZhangJL/220419/'
+figs_dir=work_dir+'fig/'
 aia_dir=work_dir+'aia_data/'
 
 if not os.path.exists(aia_dir):
@@ -30,7 +32,7 @@ for file in tqdm(filelist):
     im=np.array(f['Data/Radiance'][:])
     msec=f['/Time/Msec_Count'][:]
     day=f['/Time/Day_Count'][:]
-    if im.size != 0:
+    if im.size != 0
         IM=np.vstack((IM,im[:,24:-24, 4:-4])) 
         timelist.extend(read_timelist(msec,day))
 
@@ -71,8 +73,14 @@ for i in tqdm(range(im0.shape[0])):
     imt = immove(imp.astype('float32'),  dy,0).astype('float32')
 
     imd=Ptsetting.convertToCartesianImage(imt)
+    #=====================original===================================================
+    # d, cor, tform = all_align(aia_img.astype('float32'), imd.astype(
+    #    'float32'), winsize=71, step=20, r_t=2, arrow=0)  # tform by Optical flow
+    #================================================================================
+    #=====================modified===================================================
     d, cor, tform = all_align(aia_img.astype('float32'), imd.astype(
-       'float32'), winsize=71, step=20, r_t=2, arrow=0)  # tform by Optical flow
+       'float32'), winsize=31, step=20, r_t=2, arrow=0)
+    #================================================================================
     print(i,d,cor)
     if cor<0.8:
        imd = warp(imd.astype('float32'), tform)

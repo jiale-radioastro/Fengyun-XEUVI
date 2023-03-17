@@ -128,9 +128,9 @@ def align_opflow(im1, im2, winsize=11, step=5, r_t=2, arrow=0):
 
 
 def all_align(im1, im2, winsize=31, step=50, r_t=1, arrow=0):  # 三个波段彼此求偏移量，并最小二乘求解。
-    mask =disk(1024,1024,300)
-    im1 = im1/np.median(im1[mask])*10000
-    im2 = im2/np.median(im2[mask])*10000
+    # mask =disk(1024,1024,300)
+    # im1 = im1/np.median(im1[mask])*10000
+    # im2 = im2/np.median(im2[mask])*10000
 
     d, model, flag, flow = align_opflow(
         im1, im2, winsize=winsize, step=step, r_t=r_t, arrow=arrow)
