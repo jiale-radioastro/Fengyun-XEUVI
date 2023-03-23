@@ -128,12 +128,12 @@ def align_opflow(im1, im2, winsize=11, step=5, r_t=2, arrow=0):
 
 
 def all_align(im1, im2, winsize=31, step=50, r_t=1, arrow=0):  # 三个波段彼此求偏移量，并最小二乘求解。
-    # mask =disk(1024,1024,300)
-    # im1 = im1/np.median(im1[mask])*10000
-    # im2 = im2/np.median(im2[mask])*10000
 
     d, model, flag, flow = align_opflow(
         im1, im2, winsize=winsize, step=step, r_t=r_t, arrow=arrow)
+    # mask =disk(1024,1024,300)
+    # d, model, flag, flow = align_opflow(
+    #     im1*mask, im2*mask, winsize=winsize, step=step, r_t=r_t, arrow=arrow)
     d = removenan(d)
 
     # tform = func(rotation=d[0],translation=[0,0])
@@ -1023,7 +1023,7 @@ def preprocess(im, datalist, dataheader, dark, darkcorr,foldername='_',g=0.005):
     backim = []
     for i in tqdm(range(len(datalist))):
 
-        
+
         imorg = im[i].astype('float32')-dark  # 扣除暗场
         imorg = removestrip(imorg)  # 原始信号imorg消除cmos条纹
         imorg, ray = removeray(imorg, 0.2)  # 扣除宇宙线
@@ -1046,7 +1046,7 @@ def preprocess(im, datalist, dataheader, dark, darkcorr,foldername='_',g=0.005):
             continue  # too dark 完全不处理，跳过！！！ 最好记录在案
 
         im[i] = imorg.astype('int16')
-        
+
     backim = np.array(backim)
     fitswrite('back_'+os.path.basename(foldername)+'.fits', backim.astype('float32'), header=None)
     raysnum = np.array(raysnum)
@@ -1056,12 +1056,12 @@ def preprocess(im, datalist, dataheader, dark, darkcorr,foldername='_',g=0.005):
     dataheader = [dataheader[i] for i in range(len(dataheader)) if se[i]]
     datalist = [datalist[i] for i in range(len(datalist)) if se[i]]
     tot = len(datalist)
-   
+
     print('Pre-process finished. Drop  ', dropnum,
           'images, and there are ', backim.shape[0],' background images. Now there are ', tot, ' Sun images ')
     return im,backim, datalist, dataheader, tot, raysnum, dropnum
 def detectsignal(im): #detect if there is the SUN. if m>0.01, there is a SUN. if m<0.003, all noise
-    
+
     w=20
     w2=1
     # f = fft.fft2(im0)
@@ -1069,7 +1069,7 @@ def detectsignal(im): #detect if there is the SUN. if m>0.01, there is a SUN. if
     # f = fft.fftshift(f)*fil
     # im = np.abs(fft.ifft2(f))
     z0=im[800:-800:w2,800:-800:w2]-im[800+w:-800+w:w2,800+w:-800+w:w2]
- 
+
     z1=im[800:-800:w2,800:-800:w2]-im[800:-800:w2,800+w:-800+w:w2]
 
     z=z0+z1
@@ -1077,18 +1077,18 @@ def detectsignal(im): #detect if there is the SUN. if m>0.01, there is a SUN. if
     D=np.abs(z-s)>3*z.std()
     m=D.sum()/(z1.shape[0]*z1.shape[1])
 
-    return m 
+    return m
 def removeback(im,IM):
- 
+
 
     tot=im.shape[0]
     for i in range(tot):
         imorg=im[i]
-        
-        
+
+
         arr=~disk(2048,2048,900)
         arr2=imorg>0
-        
+
         arr=arr*1*arr2
         arr=arr>0
         K=np.median(imorg[arr])
@@ -1101,12 +1101,12 @@ def removeback(im,IM):
 def firstalign(im):
     result = []  # 处理结果列表
     im0=[]
-    
+
     tot=im.shape[0]
     for i in tqdm(range(tot)):
 
         imorg = im[i].astype('float32')
-        
+
         flag=0
         if flag==0:
             x = imorg-opening(imorg, np.ones((31, 31)))  # 用形态学提取高频结构
@@ -1138,7 +1138,7 @@ def firstalign(im):
         tmp_0 = immove2(imorg, outpara_0[0], outpara_0[1])  # 移动图像至1023.5
         im0.append(tmp_0)
         result.append([outpara_0[0], outpara_0[1], rsun_pix0])
-        
+
         arr = disk(M, N, 900)  # mask
 
 
@@ -1260,7 +1260,7 @@ def ccalign(im, datalist, dataheader, FOVlist, qelist, obsJDlist, tot, flag=0):
             dataheader[i]['SHIFTY'] = dy
             dataheader[i]['CORRELAT'] = cor
             dataheader[i]['C_angle'] = rot
-    
+
             # cross-correlation shift x,y and correlation
             subshift.append([dx, dy, rot, cor])
         Matc.append(Mat)
@@ -1272,9 +1272,9 @@ def ccalign(im, datalist, dataheader, FOVlist, qelist, obsJDlist, tot, flag=0):
 def transformimages(IM,Matc3,Matc2, Matc,Matf, tot2):
     for i in tqdm(range(tot2)):
         Mat = np.dot(Matc3[i], Matc3[i])
-       
+
         Mat = np.dot(Mat, Matc[i])
-       
+
         Mat = np.dot(Mat,Matf[i])
 
         tform = func(matrix=Mat)
@@ -1361,19 +1361,19 @@ def selectgoodimage(im, datalist, dataheader, FOVlist, qelist, subshift, tot, FO
 def sutri_map(outfitsdir,vmin=-10,vmax=300,FOV_T=0.7, qe_T=0.7,Cor_T=0.6):
         fl=sorted(glob.glob(outfitsdir+'\\jkf11*.fits*'))
         filelist=fl[::1]
-         
+
         bar=tqdm(filelist)#,position=0, file=sys.stdout, desc="desc")
-        
+
         rmdir(outfitsdir+'/map')
-        
+
         mkdir(outfitsdir+'/map')
         for file in bar:
-           
+
             sub=os.path.basename(file)
             sut=sunpy.map.Map(file)
             s=sut.fits_header
-            if (s['QUALITY']<qe_T) or (s['FIEDVIEW']<FOV_T):# or (s['CORRELAT']<Cor_T): 
-                
+            if (s['QUALITY']<qe_T) or (s['FIEDVIEW']<FOV_T):# or (s['CORRELAT']<Cor_T):
+
                 continue
             plt.close('all')
             z=np.maximum(sut.data,0)+1
@@ -1383,14 +1383,14 @@ def sutri_map(outfitsdir,vmin=-10,vmax=300,FOV_T=0.7, qe_T=0.7,Cor_T=0.6):
             # dis=sut.plot(vmin=vmin,vmax=vmax,cmap=sutri465())
         #    dis=sut.plot(clip_interval=(0, 99)*u.percent,cmap=sutri465())
             sut.draw_limb()
-            sut.draw_grid()    
-        
+            sut.draw_grid()
+
             plt.draw()
             plt.pause(0.01)
-        
+
             plt.savefig(outfitsdir+'/map/'+sub+'.png',dpi=150)
-            
+
         dirin='.//'
         batchname = os.path.basename(outfitsdir)
-        
+
         toMP4(dirin,'map_'+batchname,jpgdir=outfitsdir+'/map',fps=10)
