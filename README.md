@@ -3,7 +3,7 @@ To process XEUVI data from Fengyun-3E
 
 
 #0329记录
-添加func_zjl_v2.py image_align0328.py
+添加func_by_zjl_v2.py image_align0328.py
 实现以下新功能：
 1. 数据文件区分成几轨来处理，可以一次性处理长时间的数据
 2. 下载aia数据可以选用sunpy自带fido或jsoc网站爬虫，jsoc下载比较稳定，但分辨率偏低些
