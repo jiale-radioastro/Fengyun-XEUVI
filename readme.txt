@@ -1,0 +1,4 @@
+
+1 func_by_huzy中predict_day替换为predict_orbit。以每轨进行筛选。增加了写fits函数
+2 修改了func_by_zjl_v2 中函数reduce_aiamap的返回值，获得scale0,用以写入fits头中
+3 在image_align0328.py的基础上制作了fy3pipeline_v1,添加了矫正平场（func_by_yzh），去除噪声（func_by_sz）和去除弯曲网格（fy3_klman_demo_jkf）

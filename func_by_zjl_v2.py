@@ -138,7 +138,7 @@ def reduce_aiamap(aia_map,scale=2.46/0.6):
     header1['CRPIX1'] = 1023/2
     header1['CRPIX2'] = 1023/2
     header1['R_SUN'] = header1['R_SUN']/scale
-    return Map((data1,header1))
+    return Map((data1,header1)),header1['cdelt1']
     
 def drot_map(aia_map,out_time):
     out_frame = Helioprojective(observer='earth', obstime=out_time,
@@ -174,3 +174,4 @@ def separate_orbit(filelist,hour=1/3):
 
 def make_euvmap(data,header):
     return Map((data,header))
+
