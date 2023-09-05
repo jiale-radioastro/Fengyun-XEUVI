@@ -6,7 +6,7 @@ from sunpy.net import Fido, attrs as attrs
 from scipy.interpolate import RectBivariateSpline
 from astropy.coordinates import SkyCoord
 from astropy.wcs import WCS
-from sunpy.coordinates import Helioprojective, propagate_with_solar_surface
+from sunpy.coordinates import Helioprojective, propagate_with_solar_surface, sun
 from astropy import units as u
 import numpy as np
 from scipy.ndimage import gaussian_filter
@@ -51,7 +51,7 @@ def fido_download(reference_time,aia_dir="",max_attempts=6):
         attempt=0
         while len(download_file)==0 and attempt<max_attempts:
             try:
-                download_file = wget.download(url+link,aia_dir)
+                download_file = wget.download(results[0,index],aia_dir)
             except:
                 download_file=[]
             if len(download_file)==0:
@@ -150,9 +150,18 @@ def drot_map(aia_map,out_time):
     out_wcs = WCS(header)
     with propagate_with_solar_surface():
         out_warp = aia_map.reproject_to(out_wcs)
-    return out_warp
+    data1=out_warp.data
+    header1=aia_map.fits_header
+    header1['date-obs']=str(out_time)
+    header1['CRLN_OBS']=aia_map.observer_coordinate.lon.deg+sun.L0(time=out_time).deg
+    header1['CRLT_OBS']=aia_map.observer_coordinate.lat.deg
+    header1['DSUN_OBS']=aia_map.observer_coordinate.radius.m
+    return Map((data1,header1))
 
-def separate_orbit(filelist,hour=1/3):
+def separate_orbit(filelist,int_hour=1/3,maxframe=770):
+    # 将数据文件打包为不同轨的数据文件
+    # 对于间隔观测，间隔时间超过int_hour，自动划为新的一轨
+    # 对于连续观测，数据文件累计超过770帧（约1.5h），自动划为一轨
     filelist_packed=[]
     filelist_orbit=[]
     timelist=[]
@@ -162,7 +171,7 @@ def separate_orbit(filelist,hour=1/3):
         day=f['/Time/Day_Count'][:]
         if len(msec)>0:
             tmp_timelist=read_timelist(msec,day)
-            if len(timelist)>0 and (tmp_timelist[0]-timelist[-1]).value>1/24*hour:
+            if len(timelist)>0 and ((tmp_timelist[0]-timelist[-1]).value>1/24*int_hour or len(filelist_orbit)>maxframe):
                 filelist_packed.append(filelist_orbit)
                 filelist_orbit=[file]
             else:
