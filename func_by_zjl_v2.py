@@ -1,19 +1,20 @@
 import datetime
-from astropy.time import Time
-from aiapy.calibrate import register, update_pointing
-from sunpy.map import Map,make_fitswcs_header
-from sunpy.net import Fido, attrs as attrs
-from scipy.interpolate import RectBivariateSpline
-from astropy.coordinates import SkyCoord
-from astropy.wcs import WCS
-from sunpy.coordinates import Helioprojective, propagate_with_solar_surface, sun
-from astropy import units as u
 import numpy as np
-from scipy.ndimage import gaussian_filter
 from tqdm import tqdm
 import h5py
 from requests_html import HTMLSession
 import wget
+from astropy.time import Time
+from astropy.coordinates import SkyCoord
+from astropy.wcs import WCS
+from astropy import units as u
+from aiapy.calibrate import register, update_pointing
+from sunpy.map import Map,make_fitswcs_header
+from sunpy.net import Fido, attrs as attrs
+from sunpy.coordinates import Helioprojective, propagate_with_solar_surface, sun
+from scipy.interpolate import RectBivariateSpline
+from scipy.ndimage import gaussian_filter
+
 
 def read_timelist(msec,day):
     msec1=msec[:,0]*0.1
@@ -74,11 +75,19 @@ def jsoc_download(reference_time,aia_dir="",max_attempts=6):
     url=jsoc_url+str(year)+'/'+str(month).zfill(2)+'/'+str(day).zfill(2)+'/H'+str(hour).zfill(2)+'00/'
     session = HTMLSession()
     r = session.get(url)
-
     links193=[]
     for link in r.html.links:
         if len(link)>10 and link[-9:-1]=='0193.fit':
             links193.append(link)
+
+    jsoc_url='http://jsoc.stanford.edu/data/aia/synoptic/nrt/'
+    url=jsoc_url+str(year)+'/'+str(month).zfill(2)+'/'+str(day).zfill(2)+'/H'+str(hour).zfill(2)+'00/'
+    session = HTMLSession()
+    r = session.get(url)
+    for link in r.html.links:
+        if len(link)>10 and link[-9:-1]=='0193.fit':
+            links193.append(link)
+
     links193=sorted(links193)
     
     if len(links193)==0:
