@@ -71,6 +71,7 @@ def jsoc_download(reference_time,aia_dir="",max_attempts=6):
     month=reference_time.datetime.month
     day=reference_time.datetime.day
     hour=reference_time.datetime.hour
+    
     jsoc_url='http://jsoc.stanford.edu/data/aia/synoptic/'
     url=jsoc_url+str(year)+'/'+str(month).zfill(2)+'/'+str(day).zfill(2)+'/H'+str(hour).zfill(2)+'00/'
     session = HTMLSession()
@@ -79,14 +80,15 @@ def jsoc_download(reference_time,aia_dir="",max_attempts=6):
     for link in r.html.links:
         if len(link)>10 and link[-9:-1]=='0193.fit':
             links193.append(link)
-
-    jsoc_url='http://jsoc.stanford.edu/data/aia/synoptic/nrt/'
-    url=jsoc_url+str(year)+'/'+str(month).zfill(2)+'/'+str(day).zfill(2)+'/H'+str(hour).zfill(2)+'00/'
-    session = HTMLSession()
-    r = session.get(url)
-    for link in r.html.links:
-        if len(link)>10 and link[-9:-1]=='0193.fit':
-            links193.append(link)
+    
+    if len(links193)==0:
+        jsoc_url='http://jsoc.stanford.edu/data/aia/synoptic/nrt/'
+        url=jsoc_url+str(year)+'/'+str(month).zfill(2)+'/'+str(day).zfill(2)+'/H'+str(hour).zfill(2)+'00/'
+        session = HTMLSession()
+        r = session.get(url)
+        for link in r.html.links:
+            if len(link)>10 and link[-9:-1]=='0193.fit':
+                links193.append(link)
 
     links193=sorted(links193)
     
