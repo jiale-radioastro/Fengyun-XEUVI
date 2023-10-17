@@ -64,6 +64,8 @@ down_method='jsoc' #下载AIA数据的方式  fido下载的数据是4096*4096 js
 
 ifflat=0 #是否去除平场
 if_rmnoise=0 #是否去除噪声
+if_reference=0 #是否输入一张参考图
+reference_fits=''
 indir = '/Volumes/jiale_disk1/projects/fengyun_XEUVI/pipeline/in/'#hdf地址
 outdir = '/Volumes/jiale_disk1/projects/fengyun_XEUVI/pipeline/out/'
 outfitsdir = outdir+'/fits/'
@@ -77,6 +79,9 @@ imgi=0
 if ifflat:
     print('开始生成平场')
     flatim = makeflat(indir,outdir)
+
+if reference_fits:
+    reference_map=Map(reference_fits)
 
 
 all_timelist=[] # 用于存储一天内每张图像的时间
@@ -134,21 +139,27 @@ for orbit_i in range(orbit_num):
     reference_i=fulldisk_num//2
     print('将第'+str(reference_i)+'张XEUVI图像与AIA图像对齐')
     aia_map=give_aiamap(timelist[reference_i],aia_dir=aia_dir,method=down_method) # 下载AIA图像，并做预处理
-    if aia_map != None:
-        sz_aia=np.shape(aia_map.data)
-        _,re_a=firstalign(np.array([to1024(aia_map.data,sz_aia[0]//1024)]))
-        scale=sz_aia[0]//1024*re_a[0][2]/re[reference_i][2]
-        scalelist.append(scale) #存下缩放比例
-        aia_map,scale0=reduce_aiamap(aia_map,scale=scale)
+
+    if type(aia_map).__name__ =='NoneType':
+        if type(reference_map).__name__ =='NoneType':
+            print('既没有AIA图，也没有参考图'),quit()
+        else:
+            aia_map=reference_map
+            
+    sz_aia=np.shape(aia_map.data)
+    _,re_a=firstalign(np.array([to1024(aia_map.data,sz_aia[0]//1024)]))
+    scale=sz_aia[0]//1024*re_a[0][2]/re[reference_i][2]
+    scalelist.append(scale) #存下缩放比例
+    aia_map,scale0=reduce_aiamap(aia_map,scale=scale)
+
+    aia_map_drot=drot_map(aia_map,timelist[reference_i]) # 根据AIA图像与X-EUVI图像的时间差，对AIA图像较差自转
+    aia_img=removenan(aia_map_drot.data.T) # 去除nan值
     
-        aia_map_drot=drot_map(aia_map,timelist[reference_i]) # 根据AIA图像与X-EUVI图像的时间差，对AIA图像较差自转
-        aia_img=removenan(aia_map_drot.data.T) # 去除nan值
-        
-        reference_img,tform2=align_img(im1[reference_i],aia_img,center=center,radiusSize=radiusSize,angleSize=angleSize)
-        
-        reference_header=aia_map_drot.fits_header.copy()
-        
-        reference_map=make_euvmap(reference_img.T,reference_header)
+    reference_img,tform2=align_img(im1[reference_i],aia_img,center=center,radiusSize=radiusSize,angleSize=angleSize)
+    
+    reference_header=aia_map_drot.fits_header.copy()
+    
+    reference_map=make_euvmap(reference_img.T,reference_header)
     
     print('将该轨的图像与参考的XEUVI图像对齐')
     for i in tqdm(range(fulldisk_num)):
