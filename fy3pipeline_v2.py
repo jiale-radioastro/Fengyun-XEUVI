@@ -80,7 +80,7 @@ if ifflat:
     print('开始生成平场')
     flatim = makeflat(indir,outdir)
 
-if reference_fits:
+if if_reference:
     reference_map=Map(reference_fits)
 
 
