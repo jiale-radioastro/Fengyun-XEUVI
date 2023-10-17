@@ -35,7 +35,7 @@ def give_aiamap(reference_time,aia_dir="",method='jsoc'):
         download_file=[]
     if len(download_file)==0:
         print('未成功下载AIA数据')
-        return []
+        return None
     else:
         aia_map = Map(download_file)
         if method=='fido':
