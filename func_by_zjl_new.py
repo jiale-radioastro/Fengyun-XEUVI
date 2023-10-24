@@ -78,7 +78,7 @@ def align_map(fy_map, aia_map=None, refer_map=None, rot_corr=True, center=(512,5
     if type(aia_map).__name__ == 'NoneType' and type(refer_map).__name__ == 'NoneType':
         fy_img = fy_map.data
         tform , _ = give_tform(fy_img)
-        fy_map.data = warp(fy_img,tform)
+        fy_map_new = Map((warp(fy_img,tform),fy_map.fits_header))
     else:
         if not type(aia_map).__name__ == 'NoneType':
             refer_map = aia_map
@@ -99,9 +99,9 @@ def align_map(fy_map, aia_map=None, refer_map=None, rot_corr=True, center=(512,5
 
         # 对齐程序
         tform , _ = give_tform(fy_img,img0=refer_img2, center=center, radiusSize=radiusSize, angleSize=angleSize)
-        fy_map.data - warp (fy_img,tform)
+        fy_map_new = Map((warp(fy_img,tform),fy_map.fits_header))
         
-    return fy_map, tform
+    return fy_map_new, tform
     
 def drot_map(aia_map,out_time):
     out_frame = Helioprojective(observer='earth', obstime=out_time,
